@@ -16,12 +16,12 @@ import { ApiService } from '../../core/services/api.service';
 
         <form (ngSubmit)="onLogin()">
           <div class="form-group">
-            <label>Phone Number</label>
-            <input type="tel" [(ngModel)]="phone" name="phone" placeholder="Enter phone number" required>
+            <label>Username / Email</label>
+            <input type="text" [(ngModel)]="username" name="username" placeholder="Enter admin username" required autocomplete="username">
           </div>
           <div class="form-group">
             <label>Password</label>
-            <input type="password" [(ngModel)]="password" name="password" placeholder="Enter password" required>
+            <input type="password" [(ngModel)]="password" name="password" placeholder="Enter password" required autocomplete="current-password">
           </div>
           <button type="submit" class="btn-primary" [disabled]="loading">
             {{ loading ? 'Logging in...' : 'Login' }}
@@ -33,7 +33,7 @@ import { ApiService } from '../../core/services/api.service';
   `,
 })
 export class LoginComponent {
-  phone = '';
+  username = '';
   password = '';
   loading = false;
   error = '';
@@ -47,7 +47,7 @@ export class LoginComponent {
   onLogin() {
     this.loading = true;
     this.error = '';
-    this.api.login(this.phone, this.password).subscribe({
+    this.api.login(this.username, this.password).subscribe({
       next: (res: any) => {
         const role = res.role || '';
         if (!['admin', 'super_admin'].includes(role)) {

@@ -21,8 +21,8 @@ export class ApiService {
     return !!localStorage.getItem('le_admin_token');
   }
 
-  login(phone: string, password: string): Observable<any> {
-    return this.http.post(`${this.base}/auth/login`, { phone, password });
+  login(username: string, password: string): Observable<any> {
+    return this.http.post(`${this.base}/auth/admin-login`, { username, password });
   }
 
   saveToken(token: string): void {
