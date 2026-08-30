@@ -65,8 +65,23 @@ html, body {
 }
 
 .bottom-nav a .nav-icon {
-  font-size: 20px;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.bottom-nav a .nav-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  transition: transform 0.15s ease, stroke 0.15s ease;
+}
+
+.bottom-nav a.active .nav-icon svg {
+  stroke: var(--primary);
+  transform: scale(1.1);
 }
 
 /* ── Page container ────────────────────────── */
