@@ -3,11 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
 
-interface PartnerEarning {
-  partner_id: number;
+interface EarningRow {
+  partner_id?: number;
+  restaurant_id?: number;
   name: string;
   phone: string;
   total_earned: number;
+  settled_amount: number;
+  unsettled_amount: number;
   total_orders: number;
 }
 
@@ -18,9 +21,20 @@ interface PartnerEarning {
   template: `
     <div class="page">
       <div class="page-header">
-        <h1>Delivery Partner Earnings</h1>
+        <h1>Partner Earnings</h1>
       </div>
 
+      <!-- Partner Type Toggle -->
+      <div class="partner-type-toggle">
+        <button [class.active]="partnerType === 'delivery'" (click)="setPartnerType('delivery')">
+          🛵 Delivery Partners
+        </button>
+        <button [class.active]="partnerType === 'hotel'" (click)="setPartnerType('hotel')">
+          🏨 Hotel Partners
+        </button>
+      </div>
+
+      <!-- Date Filter Bar -->
       <div class="filter-bar">
         <button [class.active]="activeFilter === 'today'" (click)="filterToday()">Today</button>
         <button [class.active]="activeFilter === 'week'" (click)="filterWeek()">This Week</button>
@@ -34,8 +48,24 @@ interface PartnerEarning {
         </ng-container>
       </div>
 
-      <div class="earnings-total" *ngIf="earnings.length">
-        Total: ₹{{ grandTotal | number:'1.2-2' }} across {{ totalOrders }} orders
+      <!-- Summary Metrics Cards -->
+      <div class="summary-cards" *ngIf="earnings.length && !loading">
+        <div class="summary-card">
+          <div class="label">Total Orders</div>
+          <div class="val">{{ totalOrders }}</div>
+        </div>
+        <div class="summary-card">
+          <div class="label">Total Earned</div>
+          <div class="val earned">₹{{ totalEarned | number:'1.2-2' }}</div>
+        </div>
+        <div class="summary-card">
+          <div class="label">Settled</div>
+          <div class="val settled">₹{{ totalSettled | number:'1.2-2' }}</div>
+        </div>
+        <div class="summary-card">
+          <div class="label">Unsettled</div>
+          <div class="val unsettled">₹{{ totalUnsettled | number:'1.2-2' }}</div>
+        </div>
       </div>
 
       <div class="loading" *ngIf="loading">
@@ -43,15 +73,18 @@ interface PartnerEarning {
         <p>Loading earnings...</p>
       </div>
 
-      <div class="table-wrapper" *ngIf="earnings.length">
+      <!-- Earnings Table -->
+      <div class="table-wrapper" *ngIf="earnings.length && !loading">
         <table>
           <thead>
             <tr>
               <th>#</th>
-              <th>Partner Name</th>
+              <th>{{ partnerType === 'delivery' ? 'Delivery Partner' : 'Hotel / Restaurant' }}</th>
               <th>Phone</th>
               <th>Orders</th>
               <th>Total Earned</th>
+              <th>Settled</th>
+              <th>Unsettled</th>
             </tr>
           </thead>
           <tbody>
@@ -61,6 +94,8 @@ interface PartnerEarning {
               <td>{{ e.phone || '—' }}</td>
               <td>{{ e.total_orders }}</td>
               <td class="amount">₹{{ e.total_earned | number:'1.2-2' }}</td>
+              <td class="text-success">₹{{ e.settled_amount | number:'1.2-2' }}</td>
+              <td class="text-warning">₹{{ e.unsettled_amount | number:'1.2-2' }}</td>
             </tr>
           </tbody>
         </table>
@@ -73,7 +108,8 @@ interface PartnerEarning {
   `,
 })
 export class EarningsComponent implements OnInit {
-  earnings: PartnerEarning[] = [];
+  partnerType: 'delivery' | 'hotel' = 'delivery';
+  earnings: EarningRow[] = [];
   loading = true;
   activeFilter = 'all';
   startDate = '';
@@ -85,16 +121,32 @@ export class EarningsComponent implements OnInit {
     this.filterAll();
   }
 
-  get grandTotal(): number {
-    return this.earnings.reduce((sum, e) => sum + e.total_earned, 0);
+  get totalEarned(): number {
+    return this.earnings.reduce((sum, e) => sum + (e.total_earned || 0), 0);
+  }
+
+  get totalSettled(): number {
+    return this.earnings.reduce((sum, e) => sum + (e.settled_amount || 0), 0);
+  }
+
+  get totalUnsettled(): number {
+    return this.earnings.reduce((sum, e) => sum + (e.unsettled_amount || 0), 0);
   }
 
   get totalOrders(): number {
-    return this.earnings.reduce((sum, e) => sum + e.total_orders, 0);
+    return this.earnings.reduce((sum, e) => sum + (e.total_orders || 0), 0);
+  }
+
+  setPartnerType(type: 'delivery' | 'hotel') {
+    if (this.partnerType === type) return;
+    this.partnerType = type;
+    this.applyCurrentFilter();
   }
 
   filterAll() {
     this.activeFilter = 'all';
+    this.startDate = '';
+    this.endDate = '';
     this.fetchEarnings();
   }
 
@@ -102,6 +154,8 @@ export class EarningsComponent implements OnInit {
     this.activeFilter = 'today';
     const today = new Date();
     const iso = today.toISOString().split('T')[0];
+    this.startDate = iso;
+    this.endDate = iso;
     this.fetchEarnings(iso, iso + 'T23:59:59');
   }
 
@@ -111,7 +165,11 @@ export class EarningsComponent implements OnInit {
     const dayOfWeek = now.getDay();
     const monday = new Date(now);
     monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
-    this.fetchEarnings(monday.toISOString().split('T')[0], now.toISOString().split('T')[0] + 'T23:59:59');
+    const startIso = monday.toISOString().split('T')[0];
+    const endIso = now.toISOString().split('T')[0];
+    this.startDate = startIso;
+    this.endDate = endIso;
+    this.fetchEarnings(startIso, endIso + 'T23:59:59');
   }
 
   filterCustom() {
@@ -121,9 +179,20 @@ export class EarningsComponent implements OnInit {
     }
   }
 
+  private applyCurrentFilter() {
+    if (this.activeFilter === 'today') this.filterToday();
+    else if (this.activeFilter === 'week') this.filterWeek();
+    else if (this.activeFilter === 'custom') this.filterCustom();
+    else this.filterAll();
+  }
+
   fetchEarnings(startDate?: string, endDate?: string) {
     this.loading = true;
-    this.api.getDeliveryEarnings(startDate, endDate).subscribe({
+    const req$ = this.partnerType === 'delivery'
+      ? this.api.getDeliveryEarnings(startDate, endDate)
+      : this.api.getHotelEarnings(startDate, endDate);
+
+    req$.subscribe({
       next: (res: any) => {
         this.earnings = res || [];
         this.loading = false;
@@ -134,3 +203,4 @@ export class EarningsComponent implements OnInit {
     });
   }
 }
+

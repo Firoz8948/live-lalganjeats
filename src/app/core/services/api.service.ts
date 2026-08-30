@@ -52,4 +52,13 @@ export class ApiService {
     if (params.length) url += '?' + params.join('&');
     return this.http.get(url, { headers: this.headers });
   }
+
+  getHotelEarnings(startDate?: string, endDate?: string): Observable<any> {
+    let url = `${this.base}/admin/hotel-earnings`;
+    const params: string[] = [];
+    if (startDate) params.push(`start_date=${startDate}`);
+    if (endDate) params.push(`end_date=${endDate}`);
+    if (params.length) url += '?' + params.join('&');
+    return this.http.get(url, { headers: this.headers });
+  }
 }
