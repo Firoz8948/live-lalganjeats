@@ -27,10 +27,20 @@ interface EarningRow {
       <!-- Partner Type Toggle -->
       <div class="partner-type-toggle">
         <button [class.active]="partnerType === 'delivery'" (click)="setPartnerType('delivery')">
-          🛵 Delivery Partners
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18.5" cy="17.5" r="3.5"/>
+            <circle cx="5.5" cy="17.5" r="3.5"/>
+            <path d="M15 6h-4l-3 8h10l-3-8Z"/>
+            <path d="M12 17.5v-3.5"/>
+          </svg>
+          <span>Delivery Partners</span>
         </button>
         <button [class.active]="partnerType === 'hotel'" (click)="setPartnerType('hotel')">
-          🏨 Hotel Partners
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          <span>Hotel Partners</span>
         </button>
       </div>
 
@@ -140,6 +150,7 @@ export class EarningsComponent implements OnInit {
   setPartnerType(type: 'delivery' | 'hotel') {
     if (this.partnerType === type) return;
     this.partnerType = type;
+    this.earnings = [];
     this.applyCurrentFilter();
   }
 
@@ -188,6 +199,7 @@ export class EarningsComponent implements OnInit {
 
   fetchEarnings(startDate?: string, endDate?: string) {
     this.loading = true;
+    this.earnings = [];
     const req$ = this.partnerType === 'delivery'
       ? this.api.getDeliveryEarnings(startDate, endDate)
       : this.api.getHotelEarnings(startDate, endDate);
@@ -197,7 +209,9 @@ export class EarningsComponent implements OnInit {
         this.earnings = res || [];
         this.loading = false;
       },
-      error: () => {
+      error: (err: any) => {
+        console.error('Failed to load earnings', err);
+        this.earnings = [];
         this.loading = false;
       },
     });
