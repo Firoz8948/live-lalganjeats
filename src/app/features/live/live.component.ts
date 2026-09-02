@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../core/services/api.service';
-import { isVerifiedPaymentMode, paymentModeLabel } from '../../core/payment-mode';
+import { isVerifiedPaymentMode, liveCheckoutModeLabel } from '../../core/payment-mode';
 
 interface LiveOrder {
   id: number;
@@ -13,6 +13,7 @@ interface LiveOrder {
   payment_mode?: string;
   payment_mode_label?: string;
   payment_verified?: boolean;
+  payment_via?: string | null;
   created_at: string;
   restaurant_name: string;
   restaurant_phone: string;
@@ -21,6 +22,7 @@ interface LiveOrder {
   customer_name: string;
   customer_phone: string;
   delivery_address: string;
+  items?: { name: string; quantity: number; variant_label?: string | null; line_label: string }[];
 }
 
 const STATUS_STEPS = ['pending', 'accepted', 'ready', 'picked_up', 'delivered'];
@@ -70,7 +72,12 @@ const STEP_LABELS: Record<string, string> = {
           </thead>
           <tbody>
             <tr *ngFor="let o of orders">
-              <td><strong>{{ o.order_number }}</strong></td>
+              <td>
+                <strong>{{ o.order_number }}</strong>
+                <div class="order-items" *ngIf="o.items?.length">
+                  <div *ngFor="let item of o.items">{{ item.line_label }}</div>
+                </div>
+              </td>
               <td>
                 <div class="status-pipeline">
                   <span *ngFor="let step of statusSteps"
@@ -160,7 +167,7 @@ export class LiveComponent implements OnInit, OnDestroy {
   }
 
   modeLabel(order: LiveOrder): string {
-    return paymentModeLabel(order);
+    return liveCheckoutModeLabel(order);
   }
 
   isVerifiedMode(order: LiveOrder): boolean {

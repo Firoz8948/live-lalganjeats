@@ -204,6 +204,14 @@ tbody td {
   color: #166534;
 }
 
+.order-items {
+  margin-top: 4px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
 /* ── Cell with multi-line info ─────────────── */
 .cell-info {
   line-height: 1.5;

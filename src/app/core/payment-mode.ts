@@ -3,6 +3,34 @@ export interface PaymentModeFields {
   payment_mode?: string;
   payment_mode_label?: string;
   payment_verified?: boolean;
+  payment_via?: string | null;
+}
+
+/** Live board: checkout choice only — prepaid vs COD. */
+export function liveCheckoutModeLabel(order: PaymentModeFields): string {
+  const method = (order.payment_method || '').toLowerCase();
+  const mode = (order.payment_mode || '').toLowerCase();
+  if (mode === 'paid' || method === 'online') return 'Paid';
+  return 'COD';
+}
+
+/**
+ * Completed history: prepaid stays Paid.
+ * Doorstep COD is shown as how money was actually taken.
+ */
+export function historyCollectionModeLabel(order: PaymentModeFields): string {
+  const mode = (order.payment_mode || '').toLowerCase();
+  const via = (order.payment_via || '').toLowerCase();
+  const method = (order.payment_method || '').toLowerCase();
+
+  if (mode === 'paid' || via === 'prepaid online') return 'Paid';
+  if (mode === 'split' || via.includes('cash + qr')) return 'Split';
+  if (mode === 'dp_qr' || via.includes('partner qr')) return 'Delivery partner QR';
+  if (mode === 'cod' || via.includes('cash') || method === 'cash' || method === 'cod') {
+    return 'Cash collect';
+  }
+  if (method === 'online') return 'Paid';
+  return 'Cash collect';
 }
 
 export function paymentModeLabel(order: PaymentModeFields): string {

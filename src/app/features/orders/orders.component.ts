@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../core/services/api.service';
-import { isVerifiedPaymentMode, paymentModeLabel } from '../../core/payment-mode';
+import { historyCollectionModeLabel, isVerifiedPaymentMode } from '../../core/payment-mode';
 
 const STATUS_STEPS = ['pending', 'accepted', 'ready', 'picked_up', 'delivered'];
 const STEP_LABELS: Record<string, string> = {
@@ -44,7 +44,12 @@ const STEP_LABELS: Record<string, string> = {
           </thead>
           <tbody>
             <tr *ngFor="let o of orders">
-              <td><strong>{{ o.order_number }}</strong></td>
+              <td>
+                <strong>{{ o.order_number }}</strong>
+                <div class="order-items" *ngIf="o.items?.length">
+                  <div *ngFor="let item of o.items">{{ item.line_label }}</div>
+                </div>
+              </td>
               <td>
                 <div class="status-pipeline">
                   <span *ngFor="let step of statusSteps"
@@ -146,7 +151,7 @@ export class OrdersComponent implements OnInit {
   }
 
   modeLabel(order: any): string {
-    return paymentModeLabel(order);
+    return historyCollectionModeLabel(order);
   }
 
   isVerifiedMode(order: any): boolean {
