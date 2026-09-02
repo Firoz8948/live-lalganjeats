@@ -204,12 +204,19 @@ tbody td {
   color: #166534;
 }
 
+.order-cell {
+  white-space: normal;
+  min-width: 180px;
+  vertical-align: top;
+}
+
 .order-items {
-  margin-top: 4px;
-  color: var(--text-secondary);
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1.4;
+  margin-top: 6px;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+  white-space: normal;
 }
 
 /* ── Cell with multi-line info ─────────────── */

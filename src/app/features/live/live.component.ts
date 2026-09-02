@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../core/services/api.service';
 import { isVerifiedPaymentMode, liveCheckoutModeLabel } from '../../core/payment-mode';
+import { itemLineLabel } from '../../core/order-items';
 
 interface LiveOrder {
   id: number;
@@ -72,10 +73,10 @@ const STEP_LABELS: Record<string, string> = {
           </thead>
           <tbody>
             <tr *ngFor="let o of orders">
-              <td>
+              <td class="order-cell">
                 <strong>{{ o.order_number }}</strong>
                 <div class="order-items" *ngIf="o.items?.length">
-                  <div *ngFor="let item of o.items">{{ item.line_label }}</div>
+                  <div *ngFor="let item of o.items">{{ itemLabel(item) }}</div>
                 </div>
               </td>
               <td>
@@ -168,6 +169,10 @@ export class LiveComponent implements OnInit, OnDestroy {
 
   modeLabel(order: LiveOrder): string {
     return liveCheckoutModeLabel(order);
+  }
+
+  itemLabel(item: { name?: string; quantity?: number; variant_label?: string | null; line_label?: string }): string {
+    return itemLineLabel(item);
   }
 
   isVerifiedMode(order: LiveOrder): boolean {
