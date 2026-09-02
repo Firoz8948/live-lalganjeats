@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../core/services/api.service';
+import { isVerifiedPaymentMode, paymentModeLabel } from '../../core/payment-mode';
 
 interface LiveOrder {
   id: number;
@@ -9,6 +10,9 @@ interface LiveOrder {
   total_amount: number;
   payment_method: string;
   payment_status: string;
+  payment_mode?: string;
+  payment_mode_label?: string;
+  payment_verified?: boolean;
   created_at: string;
   restaurant_name: string;
   restaurant_phone: string;
@@ -56,6 +60,7 @@ const STEP_LABELS: Record<string, string> = {
             <tr>
               <th>Order</th>
               <th>Status</th>
+              <th>Mode</th>
               <th>Amount</th>
               <th>Time</th>
               <th>Customer</th>
@@ -75,6 +80,12 @@ const STEP_LABELS: Record<string, string> = {
                     {{ stepLabel(step) }}
                   </span>
                 </div>
+              </td>
+              <td>
+                <span class="mode-pill" [class.verified]="isVerifiedMode(o)">
+                  {{ modeLabel(o) }}
+                  <ng-container *ngIf="isVerifiedMode(o)"> ✓</ng-container>
+                </span>
               </td>
               <td class="amount">₹{{ o.total_amount | number:'1.2-2' }}</td>
               <td>{{ formatTime(o.created_at) }}</td>
@@ -146,6 +157,14 @@ export class LiveComponent implements OnInit, OnDestroy {
 
   stepLabel(step: string): string {
     return STEP_LABELS[step] || step.toUpperCase();
+  }
+
+  modeLabel(order: LiveOrder): string {
+    return paymentModeLabel(order);
+  }
+
+  isVerifiedMode(order: LiveOrder): boolean {
+    return isVerifiedPaymentMode(order);
   }
 
   formatTime(iso: string): string {

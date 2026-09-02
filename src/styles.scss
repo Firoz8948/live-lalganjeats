@@ -186,6 +186,24 @@ tbody td {
   color: #fff;
 }
 
+.mode-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.mode-pill.verified {
+  background: #dcfce7;
+  color: #166534;
+}
+
 /* ── Cell with multi-line info ─────────────── */
 .cell-info {
   line-height: 1.5;
