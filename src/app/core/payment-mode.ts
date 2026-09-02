@@ -25,12 +25,12 @@ export function historyCollectionModeLabel(order: PaymentModeFields): string {
 
   if (mode === 'paid' || via === 'prepaid online') return 'Paid';
   if (mode === 'split' || via.includes('cash + qr')) return 'Split';
-  if (mode === 'dp_qr' || via.includes('partner qr')) return 'Delivery partner QR';
+  if (mode === 'dp_qr' || via.includes('partner qr')) return 'Pay at delivery QR';
   if (mode === 'cod' || via.includes('cash') || method === 'cash' || method === 'cod') {
-    return 'Cash collect';
+    return 'Cash collected';
   }
   if (method === 'online') return 'Paid';
-  return 'Cash collect';
+  return 'Cash collected';
 }
 
 export function paymentModeLabel(order: PaymentModeFields): string {
