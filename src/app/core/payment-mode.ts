@@ -6,7 +6,9 @@ export interface PaymentModeFields {
 }
 
 export function paymentModeLabel(order: PaymentModeFields): string {
-  return order.payment_mode_label || (order.payment_method === 'online' ? 'Paid' : 'COD');
+  if (order.payment_mode_label) return order.payment_mode_label;
+  if (order.payment_method === 'online') return 'Payment pending';
+  return 'COD';
 }
 
 export function isVerifiedPaymentMode(order: PaymentModeFields): boolean {
