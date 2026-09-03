@@ -12,16 +12,29 @@ import { ApiService } from '../../core/services/api.service';
     <div class="login-page">
       <div class="login-card">
         <h1><span class="orange">Lalganj</span><span class="black">Eats</span></h1>
-        <p class="tagline">Live Orders Dashboard</p>
+        <p class="tagline">Live Orders · Tenant admin</p>
+        <p class="login-hint">Use the same email and password as your admin portal.</p>
 
         <form (ngSubmit)="onLogin()">
           <div class="form-group">
-            <label>Username / Email</label>
-            <input type="text" [(ngModel)]="username" name="username" placeholder="Enter admin username" required autocomplete="username">
+            <label>Email / Username</label>
+            <input
+              type="text"
+              [(ngModel)]="username"
+              name="username"
+              placeholder="Tenant admin email"
+              required
+              autocomplete="username">
           </div>
           <div class="form-group">
             <label>Password</label>
-            <input type="password" [(ngModel)]="password" name="password" placeholder="Enter password" required autocomplete="current-password">
+            <input
+              type="password"
+              [(ngModel)]="password"
+              name="password"
+              placeholder="Admin portal password"
+              required
+              autocomplete="current-password">
           </div>
           <button type="submit" class="btn-primary" [disabled]="loading">
             {{ loading ? 'Logging in...' : 'Login' }}
@@ -48,18 +61,23 @@ export class LoginComponent {
     this.loading = true;
     this.error = '';
     this.api.login(this.username, this.password).subscribe({
-      next: (res: any) => {
-        const role = res.role || '';
-        if (!['admin', 'super_admin'].includes(role)) {
-          this.error = 'Access denied. Admin login required.';
+      next: (res) => {
+        if (res.role !== 'admin' || !res.tenant_id) {
+          this.error = 'Access denied. Use a tenant admin login created by super admin.';
           this.loading = false;
           return;
         }
-        this.api.saveToken(res.access_token);
+        this.api.saveSession(res);
         this.router.navigate(['/live']);
       },
-      error: (err: any) => {
-        this.error = err?.error?.detail || 'Login failed. Check credentials.';
+      error: (err) => {
+        const status = err?.status;
+        if (status === 0) {
+          this.error = 'Cannot reach the server. Check your connection.';
+        } else {
+          this.error =
+            err?.error?.detail || 'Login failed. Use your tenant admin email and password.';
+        }
         this.loading = false;
       },
     });

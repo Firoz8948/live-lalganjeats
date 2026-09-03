@@ -1,11 +1,17 @@
 import { Component } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { ApiService } from '../../core/services/api.service';
 
 @Component({
   selector: 'app-shell',
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
   template: `
+    <header class="live-topbar">
+      <div class="live-topbar__tenant">{{ tenantLabel }}</div>
+      <button type="button" class="live-topbar__logout" (click)="logout()">Logout</button>
+    </header>
+
     <router-outlet />
 
     <nav class="bottom-nav">
@@ -41,4 +47,16 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
     </nav>
   `,
 })
-export class ShellComponent {}
+export class ShellComponent {
+  constructor(private api: ApiService, private router: Router) {}
+
+  get tenantLabel(): string {
+    const session = this.api.session;
+    return session?.tenant_name || session?.full_name || 'Tenant admin';
+  }
+
+  logout() {
+    this.api.logout();
+    this.router.navigate(['/login']);
+  }
+}

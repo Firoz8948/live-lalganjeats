@@ -14,6 +14,7 @@
   --danger: #F44336;
   --info: #2196F3;
   --bottom-nav-height: 56px;
+  --live-topbar-height: 44px;
 }
 
 * {
@@ -87,6 +88,7 @@ html, body {
 /* ── Page container ────────────────────────── */
 .page {
   padding: 12px;
+  padding-top: calc(var(--live-topbar-height) + 12px);
   padding-bottom: calc(var(--bottom-nav-height) + 16px);
   max-width: 100vw;
 }
@@ -305,7 +307,52 @@ tbody td {
   text-align: center;
   color: var(--text-secondary);
   font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.login-hint {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.4;
   margin-bottom: 24px;
+}
+
+.live-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+  height: var(--live-topbar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.live-topbar__tenant {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.live-topbar__logout {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--text);
 }
 
 .form-group {
